@@ -1,0 +1,12 @@
+{
+  "name": "shop-product-feed-compare-synthetic-monitor",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.4.5",
+    "typescript": "^5.7.3"
+  },
+  "scripts": {
+    "start": "functions-framework --target=shopProductFeedCompareSyntheticMonitor"
+  }
+}
