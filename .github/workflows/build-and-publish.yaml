@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions: write-all
     env:
       ARCHIVE_NAME: cf-shop-product-feed-compare-synthetic-monitor-nodejs.zip
 
