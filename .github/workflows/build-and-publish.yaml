@@ -4,18 +4,26 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      ARCHIVE_NAME: cf-shop-product-feed-compare-synthetic-monitor-nodejs.zip
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Setup GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.11
+        with:
+          versionSpec: '5.x'
+
+      - name: Use GitVersion
+        id:   gitversion
+        uses: gittools/actions/gitversion/execute@v0.9.11
 
       - name: Set up Node.js (v22)
         uses: actions/setup-node@v4
@@ -34,4 +42,19 @@ jobs:
           cp -r dist package/
           cp package.json package/
           cd package
-          zip -r ../function-package.zip .
+          zip -r ../$ARCHIVE_NAME .
+
+      - name: Auth on GCP
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: 'projects/330420440998/locations/global/workloadIdentityPools/proj-monitoring/providers/prov-proj-monitoring'
+          service_account: 'cicd-agent@proj-monitoring.iam.gserviceaccount.com'
+          # This pool is located in the platform project and using a service account that is located in the target project.
+
+      - name: Upload ZIP to Google Cloud Storage
+        uses: google-github-actions/upload-cloud-storage@v0
+        with:
+          bucket: proj-monitoring-cloud-function-sources
+          source: ${{ env.ARCHIVE_NAME }}
+          destination: ${{ env.ARCHIVE_NAME }}
